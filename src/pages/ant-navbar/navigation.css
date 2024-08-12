@@ -1,0 +1,58 @@
+
+/*side bar   sticky  */
+
+.side-bar-sticky-style {
+  height: 100vh;
+  overflow: auto;
+  position: sticky;
+  top: 0;
+}
+
+  /* Custom Scrollbar for Webkit browsers (Chrome, Safari) */
+  .sider-scrollbar::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
+  }
+
+  .sider-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background color of the track */
+  }
+
+  .sider-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color of the scrollbar thumb */
+    border-radius: 100px; /* Rounded corners for the scrollbar thumb */
+    border: 3px solid #f1f1f1; /* Padding around the thumb */
+  }
+
+  .sider-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Color of the scrollbar thumb when hovered */
+  }
+
+  /* Custom Scrollbar for Firefox */
+  .sider-scrollbar {
+    scrollbar-width: thin; /* Thin scrollbar */
+    scrollbar-color: #888 #f1f1f1; /* Thumb color and track color */
+  }
+
+  .sider-scrollbar:hover {
+    scrollbar-color: #555 #f1f1f1; /* Thumb color when hovered and track color */
+  }
+
+  /* Additional Styles */
+  .demo-logo-vertical {
+    height: 22px;
+    margin: 16px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+
+  /* Ensure content is scrollable independently */
+  .content-scrollable {
+    overflow: auto;
+    height: calc(100vh - 64px); /* Adjust height based on your header height */
+  }
+
+
+/* header css */
+.header-top{
+  
+}
