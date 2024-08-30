@@ -107,18 +107,20 @@ function TableComponent({
               }}
             />
           ),
-          cell: ({ row }) => (
-            <div className="px-1">
-              <IndeterminateCheckbox
-                {...{
-                  checked: row.getIsSelected(),
-                  disabled: !row.getCanSelect(),
-                  indeterminate: row.getIsSomeSelected(),
-                  onChange: row.getToggleSelectedHandler(),
-                }}
-              />
-            </div>
-          ),
+          cell: ({ row }) => {
+            return (
+              <div className="px-1">
+                <IndeterminateCheckbox
+                  {...{
+                    checked: row.getIsSelected(),
+                    disabled: !row.getCanSelect(),
+                    indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler(),
+                  }}
+                />
+              </div>
+            );
+          },
         }),
       },
       ...tableColumns,

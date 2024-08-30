@@ -76,6 +76,7 @@ const InputField = ({ formData, control, column }) => {
                     minRows: 5,
                   })}
                   inputProps={{
+                    readOnly: item?.readOnly,
                     ...(item.type === "number" && {
                       onWheel: (e) => e.currentTarget.blur(),
                     }),

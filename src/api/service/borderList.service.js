@@ -13,10 +13,79 @@ export const borderListApi = api.injectEndpoints({
         return res.data;
       },
     }),
+    getBorderListFilter: build.query({
+      query: ({ month }) => {
+        return {
+          url: `/borderList/filter?month=${month}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
+    getBorderEachBorderMillHistory: build.query({
+      query: (borderId) => {
+        return {
+          url: `/border-history/${borderId}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
+    getBorderEachBorderMillHistoryFilter: build.query({
+      query: ({ borderId, month }) => {
+        return {
+          url: `/border-history/filter/${borderId}?month=${month}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
+    getBorderEachBorderTransitionHistory: build.query({
+      query: (borderId) => {
+        return {
+          url: `/borderList/transition-history/${borderId}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
+
+    //
+    getBorderEachBorderTransitionHistoryFilter: build.query({
+      query: ({ borderId, month }) => {
+        return {
+          url: `/borderList/transition-history/filter/${borderId}?month=${month}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
+
     getByIdBorderList: build.query({
       query: (borderId) => {
         return {
           url: `/borderList/${borderId}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
+    getByIdBorderTransition: build.query({
+      query: (borderId) => {
+        return {
+          url: `/borderList/transition/${borderId}`,
           method: "GET",
         };
       },
@@ -43,8 +112,17 @@ export const borderListApi = api.injectEndpoints({
           } = await queryFulfilled;
           dispatch(
             api.util.updateQueryData("getBorderList", merchant, (draft) => {
-              draft.unshift(data);
+              draft.unshift(data?.saveBorderList);
             })
+          );
+          dispatch(
+            api.util.updateQueryData(
+              "getByIdBorderTransition",
+              merchant,
+              (draft) => {
+                draft.unshift(data?.borderTransition);
+              }
+            )
           );
           handleCloseDialog();
           reset();
@@ -86,6 +164,47 @@ export const borderListApi = api.injectEndpoints({
         }
       },
     }),
+    balanceAdd: build.mutation({
+      query: ({ data }) => {
+        return {
+          url: `/borderList/balance-add/${data.border}`,
+          method: "PATCH",
+          body: data,
+        };
+      },
+      async onQueryStarted(
+        { handleCloseDialog, merchant, setError, reset },
+        { dispatch, queryFulfilled }
+      ) {
+        try {
+          const {
+            data: { data },
+          } = await queryFulfilled;
+
+          dispatch(
+            api.util.updateQueryData("getBorderList", merchant, (draft) => {
+              const findIndex = draft.findIndex(
+                (item) => item._id === data?.updateBalance?._id
+              );
+              draft[findIndex] = data?.updateBalance;
+            })
+          );
+          dispatch(
+            api.util.updateQueryData(
+              "getByIdBorderTransition",
+              merchant,
+              (draft) => {
+                draft.unshift(data?.transition);
+              }
+            )
+          );
+          handleCloseDialog();
+          reset();
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    }),
     deleteBorderList: build.mutation({
       query: ({ BorderListId }) => {
         return {
@@ -101,8 +220,6 @@ export const borderListApi = api.injectEndpoints({
           const {
             data: { data },
           } = await queryFulfilled;
-
-          console.log(data);
 
           dispatch(
             api.util.updateQueryData("getBorderList", merchant, (draft) => {
@@ -125,8 +242,14 @@ export const borderListApi = api.injectEndpoints({
 
 export const {
   useGetBorderListQuery,
+  useLazyGetBorderListFilterQuery,
   useGetByIdBorderListQuery,
   useCreateBorderListMutation,
   useUpdateBorderListMutation,
   useDeleteBorderListMutation,
+  useGetBorderEachBorderMillHistoryQuery,
+  useLazyGetBorderEachBorderMillHistoryFilterQuery,
+  useGetBorderEachBorderTransitionHistoryQuery,
+  useLazyGetBorderEachBorderTransitionHistoryFilterQuery,
+  useBalanceAddMutation,
 } = borderListApi;

@@ -14,7 +14,7 @@ import { useLoginMutation } from "../../api/service/auth.service";
 import useFormHook from "../../hooks/useHookForm";
 import InputField from "../../reuse-component/InputComponent/Input";
 import { useEffect } from "react";
-import { Stack } from "@mui/material";
+import { Paper, Stack } from "@mui/material";
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -37,8 +37,8 @@ export default function Login() {
     {
       type: "text",
       name: "phoneNumber",
-      label: "phoneNumber",
-      placeholder: "phoneNumber or mobile",
+      label: "Phone",
+      placeholder: "Phone or email",
       required: true,
       size: "small",
       visibility: true,
@@ -60,8 +60,13 @@ export default function Login() {
 
   // validation schema
   let userSchema = object().shape({
-    phoneNumber: string().required(),
-    password: string().required(),
+    phoneNumber:
+      string()
+        .matches(/^01[3-9]\d{8}$/, 'Phone number is not valid')
+        .min(11, 'Phone number must be at list 11 digit')
+        .max(15, 'Phone number must be at most 15 Digit')
+        .required('Phone Number is Required'),
+    password: string().required('Password is required'),
   });
 
   // useForm
@@ -82,58 +87,85 @@ export default function Login() {
   }, [isSuccess, navigate]);
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
+
+    <Stack
+      direction={{ xs: 'column', sm: 'row' }}
+      component={Stack}
+      justifyContent='center'
+      alignItems='center'
+      mt={{ xs: 4, sm: 8 }}
+      spacing={2}
+    >
+      <Paper
+        elevation={4}
         sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          borderRadius: 4,
+          width: { xs: '100%', sm: '35rem' },
+          pb: 10,
+          mx: { xs: 2, sm: 0 },
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <Box
-          component="form"
-          onSubmit={handleSubmit(formSubmitData)}
-          sx={{ mt: 1 }}
-        >
-          <InputField
-            formData={formInputData}
-            control={control}
-            column={column}
-          />
-          <Stack gap={3} my={3} direction="row" justifyContent="space-between">
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <LoadingButton
-              size="small"
-              component="button"
-              type="submit"
-              endIcon={<SendIcon />}
-              loading={isLoading}
-              loadingPosition="end"
-              variant="contained"
+        <Container component="main" maxWidth="xs">
+          <Box
+            sx={{
+              marginTop: { xs: 4, sm: 8 },
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              margin: { md: 3 }
+            }}
+          >
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign in
+            </Typography>
+            <Box
+              component="form"
+              onSubmit={handleSubmit(formSubmitData)}
+              sx={{ mt: 1 }}
             >
-              Login
-            </LoadingButton>
-          </Stack>
-          <Stack direction="row" spacing={3} justifyContent="space-between">
-            <Grid item xs>
-              <Link variant="body2">Forgot password?</Link>
-            </Grid>
-            <Grid item>
-              <Link to="/auth/signUp">{"Don't have an account? Sign Up"}</Link>
-            </Grid>
-          </Stack>
-        </Box>
-      </Box>
-    </Container>
+              <InputField
+                formData={formInputData}
+                control={control}
+                column={column}
+              />
+              <Stack
+                gap={3}
+                my={3}
+                direction={{ xs: "column", sm: "row" }}
+                justifyContent="space-between"
+              >
+                <FormControlLabel
+                  control={<Checkbox value="remember" color="primary" />}
+                  label="Remember me"
+                />
+                <LoadingButton
+                  size="small"
+                  component="button"
+                  type="submit"
+                  endIcon={<SendIcon />}
+                  loading={isLoading}
+                  loadingPosition="end"
+                  variant="contained"
+                >
+                  Login
+                </LoadingButton>
+              </Stack>
+              <Stack direction="row" spacing={3} justifyContent="space-between">
+                <Grid item xs>
+                  <Link variant="body2">Forgot password?</Link>
+                </Grid>
+                <Grid item>
+                  <Link to="/auth/signUp">{"Don't have an account? Sign Up"}</Link>
+                </Grid>
+              </Stack>
+            </Box>
+          </Box>
+        </Container>
+      </Paper>
+    </Stack>
+
   );
 }

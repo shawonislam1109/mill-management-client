@@ -1,11 +1,12 @@
-import { Box, Chip } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import { DeleteFilled } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BorderListFrom from "./BorderListFrom";
 import {
   useCreateBorderListMutation,
   useDeleteBorderListMutation,
   useGetBorderListQuery,
+  useLazyGetBorderListFilterQuery,
   useUpdateBorderListMutation,
 } from "../../api/service/borderList.service";
 import useAuth from "../../hooks/useAuth";
@@ -17,19 +18,26 @@ import { useAllBorderQuery } from "../../api/service/auth.service";
 import { convertToObject } from "../../utils/convertToObject";
 import { convertToLabel } from "../../utils/convertToLabel";
 import dayjs from "dayjs";
+import { ListAltOutlined } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import BorderAddBalance from "./BorderAddBalance";
+import DatePickerViews from "../../utils/MonthePicker";
 
 const DEFAULT_VALUE = {
-  totalBalance: "",
+  totalBalance: 0,
   status: "",
-  totalMill: "",
-  totalCost: "",
-  dueBalance: "",
+  totalMill: 0,
+  totalCost: 0,
+  dueBalance: 0,
+  buaBill: 0,
   border: "",
 };
 
 const BorderList = () => {
   // USE AUTH HOOKS
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // USE DIALOG HOOKS
 
@@ -42,16 +50,30 @@ const BorderList = () => {
     handleDeleteDialogOpen,
   } = useDialog();
 
+  const {
+    open: addBalanceOpen,
+    handleDialogClose: handleAddBalanceDialogClose,
+    handleDialogOpen: handleAddBalanceDialogOpen,
+  } = useDialog();
+
   // LOCAL STATE
   const [isUpdate, setUpdate] = useState(false);
   const [defaultValues, setDefaultValues] = useState({ ...DEFAULT_VALUE });
   const [singleData, setSingleData] = useState({});
+  const [month, setMonth] = useState(new Date())
+  const [monthFilerData, setMonthFilerData] = useState([])
+  const [tableData, setTableData] = useState([])
+
 
   //   SUPPLIER  DATA FROM QUERY
-  const { data: BorderList, isLoading: BorderListIsLoading } =
-    useGetBorderListQuery(user?._id, {
-      skip: !user,
-    });
+  const {
+    data: BorderList,
+    isLoading: BorderListIsLoading,
+    refetch,
+    isFetching,
+  } = useGetBorderListQuery(user?._id, {
+    skip: !user,
+  });
   //   All Border  DATA FROM QUERY
   const { allUser, allUserObject } = useAllBorderQuery(user?._id, {
     skip: !user,
@@ -68,6 +90,10 @@ const BorderList = () => {
     useCreateBorderListMutation();
   const [updateBorderList, { isLoading: updateIsLoading }] =
     useUpdateBorderListMutation();
+
+
+  // Filter Border 
+  const [filter, { data: filterMonthData, isLoading: filterIsLoading }] = useLazyGetBorderListFilterQuery()
 
   // delete handler
   const [deleteBorderList, { isLoading: deleteIsLoading }] =
@@ -92,6 +118,20 @@ const BorderList = () => {
     handleDeleteDialogOpen();
     setSingleData(data._id);
   };
+  // MILL HISTORY HANDLER
+  const millHistoryHandler = (data) => {
+    navigate(`/mill-history/${data?.border}`);
+  };
+  // TRANSITION HISTORY HANDLER
+  const transitionHistoryHandler = (data) => {
+    navigate(`/transition-history/${data?.border}`);
+  };
+  // MILL HISTORY HANDLER
+  const balanceAddHandler = (data) => {
+    setSingleData(data);
+    setDefaultValues({ ...data });
+    handleAddBalanceDialogOpen();
+  };
 
   const deleteHandleSubmission = () => {
     deleteBorderList({
@@ -101,11 +141,46 @@ const BorderList = () => {
     });
   };
 
+
+  // filter function 
+  const filterFunction = async (date) => {
+    setMonth(dayjs(date).toISOString())
+    const res = await filter({ month: dayjs(date).toISOString() })
+    if (res?.data) {
+      setTableData(res?.data)
+    }
+
+  }
+
+
+  useEffect(() => {
+    if (BorderList) {
+      setTableData(BorderList)
+    }
+  }, [BorderList])
+
   // Table columns
   const tableColumns = [
     {
       header: "Name",
       accessorKey: "name",
+    },
+    {
+      header: "Mill",
+      accessorKey: "",
+      cell: ({ row }) => {
+        if (allUserObject?.[row?.original?.border].fullMill) {
+          return 'FULL'
+        } else if (allUserObject?.[row?.original?.border].millOff) {
+          return 'OFF'
+        } else {
+          return (<>
+            <Typography>{allUserObject?.[row?.original?.border].schedule[0]}</Typography>
+            <Typography>{allUserObject?.[row?.original?.border].schedule[1]}</Typography>
+            <Typography>{allUserObject?.[row?.original?.border].schedule[3]}</Typography>
+          </>)
+        }
+      },
     },
     {
       header: "Phone",
@@ -133,9 +208,14 @@ const BorderList = () => {
       },
     },
     {
-      header: "Total Mill",
+      header: "Bua Mill",
+      accessorKey: "buaBill",
+    },
+    {
+      header: "Mill Count",
       accessorKey: "totalMill",
     },
+
     {
       header: "Total Cost",
       accessorKey: "totalCost",
@@ -187,9 +267,28 @@ const BorderList = () => {
               permissionKey="BorderList"
               menuItems={[
                 {
-                  title: "Delete",
-                  icon: <DeleteFilled />,
-                  handleClick: deleteBorderListHandler,
+                  ...(user?.role === "manager" && {
+                    title: "Delete",
+                    icon: <DeleteFilled />,
+                    handleClick: deleteBorderListHandler,
+                  }),
+                },
+                {
+                  title: "Mill-History",
+                  icon: <ListAltOutlined />,
+                  handleClick: millHistoryHandler,
+                },
+                {
+                  ...(user?.role === "manager" && {
+                    title: "Balance Add",
+                    icon: <PaymentsIcon />,
+                    handleClick: balanceAddHandler,
+                  }),
+                },
+                {
+                  title: "Transition History",
+                  icon: <ListAltOutlined />,
+                  handleClick: transitionHistoryHandler,
                 },
               ]}
             />
@@ -206,11 +305,13 @@ const BorderList = () => {
           title: "BorderList",
           subheader: "BorderList of list",
           tableColumns,
-          tableData: BorderList || [],
-          isLoading: BorderListIsLoading,
+          tableData: tableData || [],
+          isLoading: BorderListIsLoading || isFetching || filterIsLoading,
           handleAddButton,
           addBtnLabel: user?.role === "manager",
           tableDependency: [allUserObject],
+          refetch,
+          extraHeader: <DatePickerViews{...{ month, filterFunction }} />
         }}
       />
 
@@ -229,6 +330,14 @@ const BorderList = () => {
         }}
       />
 
+      {/* Balance update dialog */}
+      <BorderAddBalance
+        {...{
+          defaultValues,
+          dialogOpen: addBalanceOpen,
+          dialogClose: handleAddBalanceDialogClose,
+        }}
+      />
       {/* delete dialog handler */}
 
       {/* <DeleteAl */}

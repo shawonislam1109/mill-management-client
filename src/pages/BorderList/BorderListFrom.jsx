@@ -33,6 +33,10 @@ const BorderListFrom = ({
       .number()
       .typeError("totalCost is required")
       .required("totalCost is required"),
+    buaBill: yup
+      .number()
+      .typeError("Bua Bill is required")
+      .required("Bua Bill is required"),
 
     status: yup
       .string()
@@ -124,6 +128,17 @@ const BorderListFrom = ({
     },
     {
       type: "number",
+      name: "buaBill",
+      label: "Bua Bill",
+      placeholder: "Bua Bill",
+      required: true,
+      size: "small",
+      visibility: true,
+      disabled: false,
+      id: "buaBill",
+    },
+    {
+      type: "number",
       name: "dueBalance",
       label: "Total Due",
       placeholder: "Total Due",
@@ -161,7 +176,7 @@ const BorderListFrom = ({
       <FormInput
         {...{
           openDialog: dialogOpen,
-          formTitle: "BorderList",
+          formTitle: !isUpdate ? "Border Create" : "Border Update",
           formId: "BorderList",
           formType: "dialog",
           control,

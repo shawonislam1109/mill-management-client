@@ -103,6 +103,7 @@ export default function ProfileMenu() {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            navigate('/auth/login')
             dispatch(userLogout());
           }}
         >

@@ -32,6 +32,7 @@ const Dashboard = () => {
 
       {/* DASH BOARD CHARD */}
       <Grid container spacing={3}>
+
         <Grid item xs={12} md={6} lg={4}>
           <Paper
             component={Stack}
@@ -39,19 +40,20 @@ const Dashboard = () => {
             justifyContent="space-around"
             alignItems="center"
             elevation={4}
-            sx={{ background: "#bf0a64", height: "10rem", borderRadius: 4 }}
+            sx={{ background: "#0ccfb1", height: "10rem", borderRadius: 4 }}
           >
-            <VerifiedUserOutlinedIcon
-              style={{ fontSize: "55px", color: "#4e17cf" }}
+            <AccountBalanceWalletRoundedIcon
+              style={{ fontSize: "55px", color: "#0c9c0c" }}
             />
 
             <Box component={Stack} justifyContent="end" alignItems="end">
               <Typography variant="h4" color="white">
-                Cash box Balance
+                All Deposit Balance
               </Typography>
               <Chip
-                color="warning"
-                label={user?.status || 0}
+                color={data?.provideBalance > 0 ? "success" : "error"}
+                variant="filled"
+                label={`${data?.provideBalance} Taka` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -75,9 +77,9 @@ const Dashboard = () => {
                 Total Balance
               </Typography>
               <Chip
-                color={data?.totalBalance > 0 ? "success" : "error"}
+                color={data?.totalBalance > 0 ? "primary" : "error"}
                 variant="filled"
-                label={`${data?.totalBalance} Taka`}
+                label={`${data?.totalBalance} Taka` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -103,7 +105,32 @@ const Dashboard = () => {
               <Chip
                 color={"error"}
                 variant="filled"
-                label={`${data?.totalDue} Taka`}
+                label={`${data?.totalDue} Taka` || 0}
+                style={{ fontSize: "15px" }}
+              ></Chip>
+            </Box>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={6} lg={4}>
+          <Paper
+            component={Stack}
+            direction="row"
+            justifyContent="space-around"
+            alignItems="center"
+            elevation={4}
+            sx={{ background: "#bf0a64", height: "10rem", borderRadius: 4 }}
+          >
+            <VerifiedUserOutlinedIcon
+              style={{ fontSize: "55px", color: "#4e17cf" }}
+            />
+
+            <Box component={Stack} justifyContent="end" alignItems="end">
+              <Typography variant="h4" color="white">
+                Bua Bill
+              </Typography>
+              <Chip
+                color="warning"
+                label={data?.buaBill || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -129,7 +156,7 @@ const Dashboard = () => {
               <Chip
                 color={"error"}
                 variant="filled"
-                label={`${data?.totalCost} Taka`}
+                label={`${data?.totalCost} Taka` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -153,9 +180,9 @@ const Dashboard = () => {
                 Total Mill
               </Typography>
               <Chip
-                color={"error"}
+                color={"info"}
                 variant="filled"
-                label={`${data?.totalMill} Taka`}
+                label={`${data?.totalMill}` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>

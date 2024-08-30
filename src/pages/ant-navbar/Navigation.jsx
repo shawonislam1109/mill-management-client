@@ -82,6 +82,7 @@ const Navigation = () => {
               justifyContent: "space-between",
               alignItems: "center",
               left: 0,
+              height: "80px",
               zIndex: "100",
               top: 0,
             }}
@@ -127,10 +128,9 @@ const Navigation = () => {
             >
               <Box>
                 <Typography color="GrayText" variant="h5">
-                  {user?.name}
-                </Typography>
-                <Typography textAlign="end" variant="subtitle1">
-                  {user?.clientId}
+                  {user?.firstName}
+                  <br />
+                  {user?.phoneNumber}
                 </Typography>
               </Box>
               <ProfileMenu />

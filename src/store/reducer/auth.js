@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { redirect } from "react-router-dom";
 
 const init = {
   isLoggedIn: false,
@@ -22,12 +21,10 @@ const authSlice = createSlice({
     },
 
     userLogout: (state) => {
-      console.log("sflksdlfds");
       state.isLoggedIn = false;
       state.user = null;
       state.token = null;
       localStorage.clear();
-      redirect("/auth/login");
     },
 
     setMode: (state) => {

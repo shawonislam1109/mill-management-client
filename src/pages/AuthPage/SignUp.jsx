@@ -12,7 +12,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { object, string } from "yup";
 import InputField from "../../reuse-component/InputComponent/Input";
-import { Stack } from "@mui/material";
+import { Paper, Stack } from "@mui/material";
 import { useSignUpMutation } from "../../api/service/auth.service";
 import { useEffect } from "react";
 
@@ -30,11 +30,16 @@ export default function SignUp() {
   const [signUp, { isLoading, isSuccess }] = useSignUpMutation();
   // validation schema
   let userSchema = object().shape({
-    firstName: string().required(),
-    lastName: string(),
-    email: string().email().required(),
-    password: string().required(),
-
+    firstName: string().required('First Name is required'),
+    lastName: string('Last name is required'),
+    email: string().email(),
+    password: string().required('Password is required'),
+    phoneNumber:
+      string()
+        .matches(/^01[3-9]\d{8}$/, 'Phone number is not valid')
+        .min(11, 'Phone number must be at list 11 digit')
+        .max(15, 'Phone number must be at most 15 Digit')
+        .required('Phone Number is Required'),
     address: string().required(),
   });
 
@@ -76,7 +81,7 @@ export default function SignUp() {
     {
       type: "text",
       name: "phoneNumber",
-      label: "phoneNumber",
+      label: "Phone",
       placeholder: "phoneNumber",
       required: true,
       size: "small",
@@ -89,7 +94,7 @@ export default function SignUp() {
       name: "email",
       label: "Email",
       placeholder: "Email or mobile",
-      required: true,
+      required: false,
       size: "small",
       visibility: true,
       disabled: false,
@@ -121,7 +126,7 @@ export default function SignUp() {
     {
       type: "password",
       name: "confirmPassword",
-      label: "confirmPassword",
+      label: "Confirm Password",
       placeholder: "Enter your confirmPassword",
       required: true,
       size: "small",
@@ -143,56 +148,68 @@ export default function SignUp() {
   }, [isSuccess]);
 
   return (
-    <Container component="main" maxWidth="sm">
-      <Box
-        component="form"
-        onSubmit={handleSubmit(formSubmitData)}
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign up
-        </Typography>
-        <Grid container item sx={{ mt: 3 }} spacing={2}>
-          <InputField formData={formData} control={control} column={column} />
-        </Grid>
 
-        <Stack
-          direction="row"
-          justifyContent="flex-end"
-          alignItems="flex-end"
-          spacing={2}
-          mt={2}
-        >
-          <LoadingButton
-            size="small"
-            component="button"
-            type="submit"
-            endIcon={<SendIcon />}
-            loading={isLoading}
-            loadingPosition="end"
-            variant="contained"
+    <Stack
+      direction={{ xs: 'column', sm: 'row' }}
+      component={Stack}
+      justifyContent='center'
+      alignItems='center'
+      mt={{ xs: 4, sm: 8 }}
+      spacing={2}
+    >
+      <Paper elevation={4} sx={{ borderRadius: 4, py: 5, width: { md: '40rem' } }}>
+        <Container component="main" maxWidth="sm">
+          <Box
+            component="form"
+            onSubmit={handleSubmit(formSubmitData)}
+            sx={{
+              marginTop: 8,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
           >
-            signUp
-          </LoadingButton>
-          <Button onClick={() => reset()} variant="outlined">
-            reset
-          </Button>
-        </Stack>
-        <Grid container justifyContent="flex-end" mt={2}>
-          <Grid item>
-            <Link to="/auth/login">Already have an account? Sign in</Link>
-          </Grid>
-        </Grid>
-      </Box>
-      {/* <Copyright sx={{ mt: 5 }} /> */}
-    </Container>
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign up
+            </Typography>
+            <Grid container direction='row' justifyContent='center' alignItems='center' sx={{ mt: 3 }} spacing={2}>
+              <InputField formData={formData} control={control} column={column} />
+            </Grid>
+
+            <Stack
+              direction="row"
+              justifyContent="flex-end"
+              alignItems="flex-end"
+              spacing={2}
+              mt={2}
+            >
+              <LoadingButton
+                size="small"
+                component="button"
+                type="submit"
+                endIcon={<SendIcon />}
+                loading={isLoading}
+                loadingPosition="end"
+                variant="contained"
+              >
+                signUp
+              </LoadingButton>
+              <Button onClick={() => reset()} variant="outlined">
+                reset
+              </Button>
+            </Stack>
+            <Grid container justifyContent="flex-end" mt={2}>
+              <Grid item>
+                <Link to="/auth/login">Already have an account? Sign in</Link>
+              </Grid>
+            </Grid>
+          </Box>
+          {/* <Copyright sx={{ mt: 5 }} /> */}
+        </Container>
+      </Paper>
+    </Stack>
   );
 }
