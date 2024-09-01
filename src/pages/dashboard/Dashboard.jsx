@@ -2,19 +2,32 @@ import { Box, Chip, Grid, Paper, Stack, Typography } from "@mui/material";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import useAuth from "../../hooks/useAuth";
-import { useGetDashboardQuery } from "../../api/service/dashboard.service";
+import {
+  useGetDashboardQuery,
+  useLazyGetDashboardMonthlyFilterQuery,
+} from "../../api/service/dashboard.service";
+import DatePickerViews from "../../utils/MonthePicker";
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import { LoadingButton } from "@mui/lab";
+import { RefreshTwoTone } from "@mui/icons-material";
 
 const Dashboard = () => {
   // auth user
   const { user } = useAuth();
+  const [month, setMonth] = useState(new Date());
+  const [tableData, setTableData] = useState([]);
 
   //   get DASHBOARD QUERY
-  const { data, isLoading } = useGetDashboardQuery(user?._id, {
+  const { data, isLoading, refetch } = useGetDashboardQuery(user?._id, {
     skip: !user,
     refetchOnMountOrArgChange: true,
   });
 
-  if (isLoading) {
+  const [filter, { isLoading: filterIsLoading }] =
+    useLazyGetDashboardMonthlyFilterQuery();
+
+  if (isLoading || filterIsLoading) {
     <Grid container spacing={3}>
       {Array(3)
         .fill({})
@@ -24,15 +37,46 @@ const Dashboard = () => {
     </Grid>;
   }
 
+  // filter function
+  const filterFunction = async (date) => {
+    setMonth(dayjs(date).toISOString());
+    const res = await filter({ month: dayjs(date).toISOString() });
+    if (res?.data) {
+      setTableData(res?.data);
+    } else {
+      setTableData({});
+    }
+  };
+
+  useEffect(() => {
+    setTableData(data);
+  }, [data]);
+
   return (
     <>
       <Typography mb={2} variant="h4">
         DASHBOARD
       </Typography>
 
+      <Stack
+        direction="row"
+        gap={2}
+        my={2}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <LoadingButton
+          loading={filterIsLoading}
+          onClick={refetch}
+          variant="outlined"
+        >
+          <RefreshTwoTone />
+        </LoadingButton>
+        <DatePickerViews {...{ month, filterFunction }} />
+      </Stack>
+
       {/* DASH BOARD CHARD */}
       <Grid container spacing={3}>
-
         <Grid item xs={12} md={6} lg={4}>
           <Paper
             component={Stack}
@@ -51,9 +95,9 @@ const Dashboard = () => {
                 All Deposit Balance
               </Typography>
               <Chip
-                color={data?.provideBalance > 0 ? "success" : "error"}
+                color={tableData?.provideBalance > 0 ? "success" : "error"}
                 variant="filled"
-                label={`${data?.provideBalance} Taka` || 0}
+                label={`${tableData?.provideBalance} Taka` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -77,9 +121,9 @@ const Dashboard = () => {
                 Total Balance
               </Typography>
               <Chip
-                color={data?.totalBalance > 0 ? "primary" : "error"}
+                color={tableData?.totalBalance > 0 ? "primary" : "error"}
                 variant="filled"
-                label={`${data?.totalBalance} Taka` || 0}
+                label={`${tableData?.totalBalance} Taka` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -105,7 +149,7 @@ const Dashboard = () => {
               <Chip
                 color={"error"}
                 variant="filled"
-                label={`${data?.totalDue} Taka` || 0}
+                label={`${tableData?.totalDue} Taka` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -130,7 +174,7 @@ const Dashboard = () => {
               </Typography>
               <Chip
                 color="warning"
-                label={data?.buaBill || 0}
+                label={tableData?.buaBill || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -156,7 +200,7 @@ const Dashboard = () => {
               <Chip
                 color={"error"}
                 variant="filled"
-                label={`${data?.totalCost} Taka` || 0}
+                label={`${tableData?.totalCost} Taka` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>
@@ -182,7 +226,7 @@ const Dashboard = () => {
               <Chip
                 color={"info"}
                 variant="filled"
-                label={`${data?.totalMill}` || 0}
+                label={`${tableData?.totalMill}` || 0}
                 style={{ fontSize: "15px" }}
               ></Chip>
             </Box>

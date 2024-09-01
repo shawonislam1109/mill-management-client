@@ -14,7 +14,11 @@ import {
 import useFormHook from "../../hooks/useHookForm";
 import useAuth from "../../hooks/useAuth";
 import FormInput from "../../reuse-component/InputComponent/FormInput";
-import { useActiveMillCountMutation } from "../../api/service/auth.service";
+import {
+  useActiveMillCountMutation,
+  useGetByIdBorderQuery,
+} from "../../api/service/auth.service";
+import { useNavigate, useParams } from "react-router-dom";
 
 // DEFAULT_VALUES
 const DEFAULT_VALUE = {
@@ -26,6 +30,9 @@ const DEFAULT_VALUE = {
 const MillCount = () => {
   // AUTH USE
   const { user } = useAuth();
+  const { userId } = useParams();
+  const navigate = useNavigate();
+
   //@LOCAL STATE
   const [defaultValues, setDefaultValues] = useState({ ...DEFAULT_VALUE });
   const [fullMIll, setFullMill] = useState(true);
@@ -33,6 +40,11 @@ const MillCount = () => {
   // RTK QUERY MUTATION
   const [activeMillCount, { isLoading: activeMillCountIsLoading }] =
     useActiveMillCountMutation();
+
+  // user id
+  const { data: singleUserData } = useGetByIdBorderQuery(userId, {
+    skip: !userId,
+  });
 
   // VALIDATION
   const validationSchema = yup.object().shape({
@@ -47,8 +59,22 @@ const MillCount = () => {
   });
 
   //   FORM SUBMIT HANDLER
-  const formSubmit = (data) => {
-    activeMillCount({ data, user, setError, reset });
+  const formSubmit = async (data) => {
+    if (!userId) {
+      activeMillCount({ data, user, setError, reset });
+    } else {
+      const res = await activeMillCount({
+        data,
+        userId,
+        user,
+        setError,
+        reset,
+      });
+
+      if (res.data) {
+        navigate("/border-list");
+      }
+    }
   };
 
   //   FORM DATA
@@ -103,12 +129,20 @@ const MillCount = () => {
 
   // for default value set
   useEffect(() => {
-    setDefaultValues({
-      fullMill: user?.fullMill,
-      millOff: user?.millOff,
-      schedule: user?.schedule,
-    });
-  }, [user]);
+    if (!userId) {
+      setDefaultValues({
+        fullMill: user?.fullMill,
+        millOff: user?.millOff,
+        schedule: user?.schedule,
+      });
+    } else {
+      setDefaultValues({
+        fullMill: singleUserData?.fullMill,
+        millOff: singleUserData?.millOff,
+        schedule: singleUserData?.schedule,
+      });
+    }
+  }, [user, singleUserData]);
 
   return (
     <>

@@ -44,6 +44,15 @@ const mainRoutes = [
     ],
   },
   {
+    path: "/mill-count/:userId",
+    children: [
+      {
+        path: "",
+        element: <MillCount />,
+      },
+    ],
+  },
+  {
     path: "/mill-history/:borderId",
     children: [
       {

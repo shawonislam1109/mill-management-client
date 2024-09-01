@@ -13,7 +13,19 @@ export const dashboardApi = api.injectEndpoints({
         return res.data;
       },
     }),
+    getDashboardMonthlyFilter: build.query({
+      query: ({ month }) => {
+        return {
+          url: `/dashboard/filter?month=${month}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
   }),
 });
 
-export const { useGetDashboardQuery } = dashboardApi;
+export const { useGetDashboardQuery, useLazyGetDashboardMonthlyFilterQuery } =
+  dashboardApi;

@@ -60,10 +60,8 @@ const BorderList = () => {
   const [isUpdate, setUpdate] = useState(false);
   const [defaultValues, setDefaultValues] = useState({ ...DEFAULT_VALUE });
   const [singleData, setSingleData] = useState({});
-  const [month, setMonth] = useState(new Date())
-  const [monthFilerData, setMonthFilerData] = useState([])
-  const [tableData, setTableData] = useState([])
-
+  const [month, setMonth] = useState(new Date());
+  const [tableData, setTableData] = useState([]);
 
   //   SUPPLIER  DATA FROM QUERY
   const {
@@ -88,12 +86,13 @@ const BorderList = () => {
 
   const [createBorderList, { isLoading: createIsLoading }] =
     useCreateBorderListMutation();
+
   const [updateBorderList, { isLoading: updateIsLoading }] =
     useUpdateBorderListMutation();
 
-
-  // Filter Border 
-  const [filter, { data: filterMonthData, isLoading: filterIsLoading }] = useLazyGetBorderListFilterQuery()
+  // Filter Border
+  const [filter, { data: filterMonthData, isLoading: filterIsLoading }] =
+    useLazyGetBorderListFilterQuery();
 
   // delete handler
   const [deleteBorderList, { isLoading: deleteIsLoading }] =
@@ -126,6 +125,10 @@ const BorderList = () => {
   const transitionHistoryHandler = (data) => {
     navigate(`/transition-history/${data?.border}`);
   };
+  // TRANSITION HISTORY HANDLER
+  const millCount = (data) => {
+    navigate(`/mill-count/${data?.border}`);
+  };
   // MILL HISTORY HANDLER
   const balanceAddHandler = (data) => {
     setSingleData(data);
@@ -141,23 +144,19 @@ const BorderList = () => {
     });
   };
 
-
-  // filter function 
+  // filter function
   const filterFunction = async (date) => {
-    setMonth(dayjs(date).toISOString())
-    const res = await filter({ month: dayjs(date).toISOString() })
+    setMonth(dayjs(date).toISOString());
+    const res = await filter({ month: dayjs(date).toISOString() });
+    console.log(res);
     if (res?.data) {
-      setTableData(res?.data)
+      setTableData(res?.data);
     }
-
-  }
-
+  };
 
   useEffect(() => {
-    if (BorderList) {
-      setTableData(BorderList)
-    }
-  }, [BorderList])
+    setTableData(BorderList);
+  }, [BorderList]);
 
   // Table columns
   const tableColumns = [
@@ -169,16 +168,18 @@ const BorderList = () => {
       header: "Mill",
       accessorKey: "",
       cell: ({ row }) => {
-        if (allUserObject?.[row?.original?.border].fullMill) {
-          return 'FULL'
-        } else if (allUserObject?.[row?.original?.border].millOff) {
-          return 'OFF'
+        if (row?.original?.fullMill) {
+          return "FULL";
+        } else if (row?.original?.millOff) {
+          return "OFF";
         } else {
-          return (<>
-            <Typography>{allUserObject?.[row?.original?.border].schedule[0]}</Typography>
-            <Typography>{allUserObject?.[row?.original?.border].schedule[1]}</Typography>
-            <Typography>{allUserObject?.[row?.original?.border].schedule[3]}</Typography>
-          </>)
+          return (
+            <>
+              <Typography>{row?.original?.schedule[0]}</Typography>
+              <Typography>{row?.original?.schedule[1]}</Typography>
+              <Typography>{row?.original?.schedule[3]}</Typography>
+            </>
+          );
         }
       },
     },
@@ -286,6 +287,13 @@ const BorderList = () => {
                   }),
                 },
                 {
+                  ...(user?.role === "manager" && {
+                    title: "Mill Status update",
+                    icon: <PaymentsIcon />,
+                    handleClick: millCount,
+                  }),
+                },
+                {
                   title: "Transition History",
                   icon: <ListAltOutlined />,
                   handleClick: transitionHistoryHandler,
@@ -311,7 +319,7 @@ const BorderList = () => {
           addBtnLabel: user?.role === "manager",
           tableDependency: [allUserObject],
           refetch,
-          extraHeader: <DatePickerViews{...{ month, filterFunction }} />
+          extraHeader: <DatePickerViews {...{ month, filterFunction }} />,
         }}
       />
 

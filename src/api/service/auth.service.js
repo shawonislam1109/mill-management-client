@@ -68,20 +68,63 @@ export const authApi = api.injectEndpoints({
         return res.data;
       },
     }),
+    getByIdBorder: build.query({
+      query: (userId) => {
+        return {
+          url: `/auth/${userId}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
 
     activeMillCount: build.mutation({
-      query: ({ data }) => {
+      query: ({ data, userId }) => {
         return {
-          url: `/auth/active/mill-count`,
+          url: userId
+            ? `/auth/active/mill-count?userId=${userId}`
+            : `/auth/active/mill-count`,
           method: "PATCH",
           body: data,
         };
       },
-      async onQueryStarted({ reset, setError }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(
+        { reset, setError, userId, user },
+        { dispatch, queryFulfilled }
+      ) {
         try {
           const { data: data } = await queryFulfilled;
 
-          dispatch(modifyUser({ data: data?.data }));
+          console.log(data);
+          dispatch(
+            modifyUser({
+              data: {
+                ...user,
+                schedule: data?.data?.user?.schedule,
+                fullMill: data?.data?.user?.fullMill,
+                millOff: data?.data?.user?.millOff,
+              },
+            })
+          );
+          dispatch(
+            api.util.updateQueryData("getByIdBorder", userId, (draft) => {
+              draft = data?.data?.border;
+              return draft;
+            })
+          );
+          dispatch(
+            api.util.updateQueryData("getBorderList", user?._id, (draft) => {
+              const findIndex = draft.findIndex(
+                (item) => item.border === userId
+              );
+              if (findIndex !== -1) {
+                draft[findIndex] = data?.data?.border;
+              }
+              return draft;
+            })
+          );
           reset();
         } catch (error) {
           setError(error?.data?.data.path, error?.data?.data.msg);
@@ -97,4 +140,5 @@ export const {
   useSignUpMutation,
   useAllBorderQuery,
   useActiveMillCountMutation,
+  useGetByIdBorderQuery,
 } = authApi;

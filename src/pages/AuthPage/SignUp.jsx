@@ -30,16 +30,15 @@ export default function SignUp() {
   const [signUp, { isLoading, isSuccess }] = useSignUpMutation();
   // validation schema
   let userSchema = object().shape({
-    firstName: string().required('First Name is required'),
-    lastName: string('Last name is required'),
+    firstName: string().required("First Name is required"),
+    phoneNumber: string()
+      .matches(/^01[3-9]\d{8}$/, "Phone number is not valid")
+      .min(11, "Phone number must be at list 11 digit")
+      .max(15, "Phone number must be at most 15 Digit")
+      .required("Phone Number is Required"),
+    lastName: string("Last name is required"),
     email: string().email(),
-    password: string().required('Password is required'),
-    phoneNumber:
-      string()
-        .matches(/^01[3-9]\d{8}$/, 'Phone number is not valid')
-        .min(11, 'Phone number must be at list 11 digit')
-        .max(15, 'Phone number must be at most 15 Digit')
-        .required('Phone Number is Required'),
+    password: string().required("Password is required"),
     address: string().required(),
   });
 
@@ -148,16 +147,18 @@ export default function SignUp() {
   }, [isSuccess]);
 
   return (
-
     <Stack
-      direction={{ xs: 'column', sm: 'row' }}
+      direction={{ xs: "column", sm: "row" }}
       component={Stack}
-      justifyContent='center'
-      alignItems='center'
+      justifyContent="center"
+      alignItems="center"
       mt={{ xs: 4, sm: 8 }}
       spacing={2}
     >
-      <Paper elevation={4} sx={{ borderRadius: 4, py: 5, width: { md: '40rem' } }}>
+      <Paper
+        elevation={4}
+        sx={{ borderRadius: 4, py: 5, width: { md: "40rem" } }}
+      >
         <Container component="main" maxWidth="sm">
           <Box
             component="form"
@@ -175,8 +176,19 @@ export default function SignUp() {
             <Typography component="h1" variant="h5">
               Sign up
             </Typography>
-            <Grid container direction='row' justifyContent='center' alignItems='center' sx={{ mt: 3 }} spacing={2}>
-              <InputField formData={formData} control={control} column={column} />
+            <Grid
+              container
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              sx={{ mt: 3 }}
+              spacing={2}
+            >
+              <InputField
+                formData={formData}
+                control={control}
+                column={column}
+              />
             </Grid>
 
             <Stack
