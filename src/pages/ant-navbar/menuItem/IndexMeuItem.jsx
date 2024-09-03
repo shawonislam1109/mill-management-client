@@ -1,4 +1,4 @@
-import { borderListItem } from "./borderlist";
+import { borderListItem } from "./Borderlist";
 import { buaItem } from "./bua";
 import { dashboardItem } from "./DashboardItem";
 import { millCountItem } from "./MillCount";
