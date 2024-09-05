@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // initialize an empty api service that we'll inject endpoints into later as needed
 const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
+    baseUrl: "https://mill-mnanagment.vercel.app/api/v1",
     mode: "cors",
     prepareHeaders(headers, { getState }) {
       const { token, branch } = getState().auth;
