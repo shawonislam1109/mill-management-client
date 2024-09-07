@@ -29,6 +29,7 @@ export const authApi = api.injectEndpoints({
         }
       },
     }),
+
     signUp: build.mutation({
       query: ({ data }) => {
         return {
@@ -36,24 +37,6 @@ export const authApi = api.injectEndpoints({
           method: "POST",
           body: data,
         };
-      },
-      async onQueryStarted({ reset, setError }, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", data.data._id);
-          localStorage.setItem("isLoggedIn", true);
-          dispatch(
-            userLogin({
-              user: data.data,
-              token: data.token,
-            })
-          );
-          reset();
-        } catch (error) {
-          setError(error?.data?.data.path, error?.data?.data.msg);
-          console.log(error);
-        }
       },
     }),
 

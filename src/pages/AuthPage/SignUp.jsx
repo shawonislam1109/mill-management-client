@@ -142,7 +142,7 @@ export default function SignUp() {
 
   useEffect(() => {
     if (isSuccess) {
-      navigate("/dashboard");
+      navigate("/auth/login");
     }
   }, [isSuccess]);
 
